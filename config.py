@@ -1,6 +1,6 @@
 # Training hiperparameters
 LEARNING_RATE = 0.001
-BATCH_SIZE = 32
+BATCH_SIZE = 8
 NUM_EPOCHS = 3
 MIN_EPOCHS = 1
 #K-Fold

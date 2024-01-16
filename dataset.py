@@ -1,11 +1,11 @@
 import os
 
 import lightning as L
-from lightning.pytorch.utilities.types import EVAL_DATALOADERS
 import numpy as np
-import torchvision.transforms as transforms
+import torch
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
+from torchvision.transforms import v2
 
 
 class CaravanaDataset(Dataset):
@@ -14,23 +14,25 @@ class CaravanaDataset(Dataset):
         self.mask_dir = mask_dir
         self.transform = transform
         self.images = os.listdir(image_dir)
+        pass
 
     def __len__(self):
         return len(self.images)
     
     def __getitem__(self, index):
         img_path = os.path.join(self.image_dir, self.images[index])
-        image = np.array(Image.open(img_path).convert("RGB"))
+        image = np.array(Image.open(img_path).convert("RGB"), dtype=np.float32)
+        # Set channels dimension as second dimension
+        image = np.transpose(image, (2, 0, 1))
         if self.mask_dir is not None:
-            mask_path = os.path.join(self.mask_dir, self.images[index].replace(".jpg", "_mask.gif"))
+            mask_path = os.path.join(self.mask_dir, self.images[index].replace(".jpg", "_masks.gif"))
             mask = np.array(Image.open(mask_path).convert("L"), dtype=np.float32)
             mask[mask == 255.0] = 1.0
         
         if self.transform is not None:
-            augmentations = self.transform(image=image, mask=mask)
-            image = augmentations["image"]
+            image = self.transform(image)
             if self.mask_dir is not None:
-                mask = augmentations["mask"]
+                mask = self.transform(mask) 
 
         return image, mask
     
@@ -43,37 +45,34 @@ class CarvanaDatamodule(L.LightningDataModule):
         self.batch_size = batch_size
         self.num_workers = num_workers
 
-        train_transform = transforms.Compose([
-            transforms.Resize(height=self.image_height, width=self.image_width),
-            transforms.Rotate(limit=35, p=1.0),
-            transforms.HorizontalFlip(p=0.5),
-            transforms.VerticalFlip(p=0.1),
-            transforms.Normalize(
+        train_transform = v2.Compose([
+            v2.Resize((self.image_height, self.image_width)),
+            v2.RandomRotation(degrees=35),
+            v2.RandomHorizontalFlip(),
+            v2.RandomVerticalFlip(p=0.2),
+            v2.Normalize(
                 mean=[0.0, 0.0, 0.0],
-                std=[1.0, 1.0, 1.0],
-                max_pixel_value=255.0,
+                std=[1.0, 1.0, 1.0]
             ),
-            transforms.ToTensor(),
+            v2.ToDtype(torch.float32, scale=True),
         ])
 
-        val_transform = transforms.Compose([
-            transforms.Resize(height=self.image_height, width=self.image_width),
-            transforms.Normalize(
+        val_transform = v2.Compose([
+            v2.Resize((self.image_height, self.image_width)),
+            v2.Normalize(
                 mean=[0.0, 0.0, 0.0],
-                std=[1.0, 1.0, 1.0],
-                max_pixel_value=255.0,
+                std=[1.0, 1.0, 1.0]
             ),
-            transforms.ToTensor(),
+            v2.ToDtype(torch.float32, scale=True),
         ])
 
-        test_transform = transforms.Compose([
-            transforms.Resize(height=self.image_height, width=self.image_width),
-            transforms.Normalize(
+        test_transform = v2.Compose([
+            v2.Resize((self.image_height, self.image_width)),
+            v2.Normalize(
                 mean=[0.0, 0.0, 0.0],
-                std=[1.0, 1.0, 1.0],
-                max_pixel_value=255.0
+                std=[1.0, 1.0, 1.0]
             ),
-            transforms.ToTensor()
+            v2.ToDtype(torch.float32, scale=True)
         ])
 
         self.train_data = CaravanaDataset(os.path.join(self.data_dir, "train"),

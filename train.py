@@ -1,13 +1,16 @@
-import torch
-from lightning.pytorch.loggers import TensorBoardLogger
-import config
-from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
-from lightning.pytorch.profilers import PyTorchProfiler
-from dataset import CarvanaDatamodule
-import lightning as L
-from model import UNET_pl
 import random
+
+import lightning as L
 import numpy as np
+import torch
+from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
+from lightning.pytorch.loggers import TensorBoardLogger
+from lightning.pytorch.profilers import PyTorchProfiler
+
+import config
+from dataset import CarvanaDatamodule
+from model import UNET_pl
+
 
 def main():
 
@@ -18,6 +21,10 @@ def main():
     ##########################################################################
 
     ############################# Experiment #####################################################
+
+    # To make lightning happy
+    torch.set_float32_matmul_precision('medium')
+
     # Logger and profiler
     logger = TensorBoardLogger("tb_logs", "U-Net")
     profiler = PyTorchProfiler(
