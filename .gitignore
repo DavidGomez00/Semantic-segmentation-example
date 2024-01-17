@@ -6,7 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# Exclude my own folders
 data/
+tb_logs/
+jobs/
 
 # Distribution / packaging
 .Python
