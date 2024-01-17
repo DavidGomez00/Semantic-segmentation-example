@@ -46,7 +46,7 @@ class CarvanaDatamodule(L.LightningDataModule):
         self.num_workers = num_workers
 
         train_transform = v2.Compose([
-            v2.Resize((self.image_height, self.image_width)),
+            v2.Resize((self.image_height, self.image_width), antialias=True),
             v2.RandomRotation(degrees=35),
             v2.RandomHorizontalFlip(),
             v2.RandomVerticalFlip(p=0.2),
@@ -58,7 +58,7 @@ class CarvanaDatamodule(L.LightningDataModule):
         ])
 
         val_transform = v2.Compose([
-            v2.Resize((self.image_height, self.image_width)),
+            v2.Resize((self.image_height, self.image_width), antialias=True),
             v2.Normalize(
                 mean=[0.0, 0.0, 0.0],
                 std=[1.0, 1.0, 1.0]
@@ -67,7 +67,7 @@ class CarvanaDatamodule(L.LightningDataModule):
         ])
 
         test_transform = v2.Compose([
-            v2.Resize((self.image_height, self.image_width)),
+            v2.Resize((self.image_height, self.image_width), antialias=True),
             v2.Normalize(
                 mean=[0.0, 0.0, 0.0],
                 std=[1.0, 1.0, 1.0]

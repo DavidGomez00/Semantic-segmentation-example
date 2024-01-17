@@ -13,7 +13,6 @@ from model import UNET_pl
 
 
 def main():
-
     ############################# Reproducibility ############################
     torch.manual_seed(42)
     random.seed(42)
