@@ -1,11 +1,8 @@
 # Training hiperparameters
 LEARNING_RATE = 0.001
-BATCH_SIZE = 8
-NUM_EPOCHS = 3
+BATCH_SIZE = 1
+NUM_EPOCHS = 1
 MIN_EPOCHS = 1
-#K-Fold
-NUM_FOLDS = 5
-SPLIT_SEED = 42
 
 # Dataset
 DATA_DIR = "data/"
