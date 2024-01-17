@@ -9,8 +9,9 @@ __pycache__/
 # Exclude my own folders
 data/
 tb_logs/
-jobs/
 Utils/
+*.sh
+*.out
 
 # Distribution / packaging
 .Python

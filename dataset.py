@@ -25,7 +25,7 @@ class CaravanaDataset(Dataset):
         # Set channels dimension as second dimension
         image = np.transpose(image, (2, 0, 1))
         if self.mask_dir is not None:
-            mask_path = os.path.join(self.mask_dir, self.images[index].replace(".jpg", "_masks.gif"))
+            mask_path = os.path.join(self.mask_dir, self.images[index].replace(".jpg", "_mask.gif"))
             mask = np.array(Image.open(mask_path).convert("L"), dtype=np.float32)
             mask[mask == 255.0] = 1.0
         
