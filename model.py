@@ -1,10 +1,10 @@
-from typing import Any
-from lightning.pytorch.utilities.types import STEP_OUTPUT
-import torch
-import torch.optim as optim
 import lightning as L
+import torch
 import torch.nn as nn
+import torch.optim as optim
+import torchmetrics
 import torchvision.transforms.functional as TF
+
 
 class DoubleConv(nn.Module):
     ''' This module performs a convolution followed by batch 
@@ -89,7 +89,11 @@ class UNET_pl(L.LightningModule):
         self.train_outputs = []
         self.val_outputs = []
 
-    def training_step(self, batch, batch_idx) -> STEP_OUTPUT:
+        # Metrics
+        self.f1_score = torchmetrics.F1Score(task='binary')
+        self.dice_score = torchmetrics.Dice()
+
+    def training_step(self, batch, batch_idx):
         loss, scores, y = self._common_step(batch, batch_idx)
         self.log_dict({'train_loss': loss},
                       on_step=False, on_epoch=True, prog_bar=True)
@@ -102,7 +106,7 @@ class UNET_pl(L.LightningModule):
         self.train_outputs = []
 
         self.log_dict({
-            "train_acc": self.accuracy(scores, y),
+            "train_dice_score": self.dice_score(scores, y.to(torch.int)),
             "train_f1": self.f1_score(scores, y)
         },
         on_step=False,
@@ -123,7 +127,7 @@ class UNET_pl(L.LightningModule):
         self.val_outputs = []
 
         self.log_dict({
-            "val_acc": self.accuracy(scores, y),
+            "val_dice_score": self.dice_score(scores, y.to(torch.int)),
             "val_f1": self.f1_score(scores, y)
         },
         on_step=False,
@@ -138,8 +142,8 @@ class UNET_pl(L.LightningModule):
     
     def _common_step(self, batch, batch_idx):
         x, y = batch
-        scores = torch.squeeze(self.model.forward(x), dim=1)
-        loss = self.loss_fn(scores, y.float())
+        scores = self.model.forward(x)
+        loss = self.loss_fn(scores, y)
         return loss, scores, y
 
     def predict_step(self, batch, batch_idx):
