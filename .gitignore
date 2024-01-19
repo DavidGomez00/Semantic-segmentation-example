@@ -11,7 +11,9 @@ data/
 tb_logs/
 Utils/
 *.sh
+*.swp
 *.out
+model_ckpt/
 
 # Distribution / packaging
 .Python
