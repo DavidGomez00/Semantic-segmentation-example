@@ -1,7 +1,7 @@
 # Training hiperparameters
 LEARNING_RATE = 0.001
-BATCH_SIZE = 1
-NUM_EPOCHS = 1
+BATCH_SIZE = 8
+NUM_EPOCHS = 10
 MIN_EPOCHS = 1
 
 # Dataset
